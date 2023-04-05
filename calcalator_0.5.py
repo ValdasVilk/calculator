@@ -1,28 +1,16 @@
-import tkinter
-import tkinter.messagebox
-import customtkinter
+import tkinter as tk
 import math
 
-customtkinter.set_appearance_mode("dark")
-customtkinter.set_default_color_theme("blue")
 
+class Calculator:
+    def __init__(self, master):
+        self.master = master
+        master.title("klakaliator")
 
-class Calculator(customtkinter.CTk):
+        self.display = tk.Entry(master, width=20)
+        self.display.grid(row=0, columnspan=4)
 
-    def __init__(self):
-        super().__init__()
-
-        self.title("Kalkaliatorius")
-        self.geometry("560x250")
-
-        self.display = customtkinter.CTkEntry(master=self, width=200, height=25)
-        self.display.grid(row=0, column=0, columnspan=4)
-
-        self.output_label = customtkinter.CTkLabel(master=self,text=str(self.on_click()), width=200, height=25)
-        self.output_label.grid(row=7, column=9, columnspan=4)
-
-        self.total_expression = ""
-        self.current_expression = ""
+        self.bind_keys()
 
         self.create_button("7", 2, 0)
         self.create_button("8", 2, 1)
@@ -46,83 +34,76 @@ class Calculator(customtkinter.CTk):
         self.create_button("C", 1, 0)
         self.create_button("(", 5, 2)
         self.create_button(")", 5, 3)
-        self.create_button("=", 6, 0)
-        self.create_button("\u221ax", 1, 1)
-        self.create_button("x\u00b2", 1, 2)
 
-        self.bind_keys()
+        self.create_equals_button("=")
 
-        self.create_display_labels()
-        self.create_display_labels()
+        self.create_square_button("x\u00b2", 1, 1)
+        self.create_sqrt_button("\u221ax", 1, 2)
 
-    def create_display_frame(self):
-        frame = customtkinter.CTkFrame(self, height=221)
-        frame.grid()
-
-    def create_display_labels(self):
-        total_label = customtkinter.CTkLabel(self, text=self.total_expression, anchor=customtkinter.E,  padx=24)
-        total_label.grid()
-
-        label = customtkinter.CTkLabel(self, text=self.current_expression, anchor=customtkinter.E, padx=24)
-        label.grid()
+    def add_to_field(self, sth):
+        global field_text
+        field_text = field_text+str(sth)
 
     def create_button(self, text, row, col):
-
-        if text in '0123456789':
-            button = customtkinter.CTkButton(master=self, text=text,  width=50, height=25, command=lambda: self.on_click(text))
-            button.grid(row=row, column=col)
-        elif text in "=":
-            button = customtkinter.CTkButton(master=self, text=text, width=200, height=25, command=lambda: self.on_click(text))
-            button.grid(row=row, column=col, columnspan=5)
-        elif text in "\u221ax":
-            button = customtkinter.CTkButton(master=self, text=text, width=50, height=25, command=lambda: self.sqrt())
-            button.grid(row=row, column=col)
-        elif text in "x\u00b2":
-            button = customtkinter.CTkButton(master=self, text=text, width=50, height=25, command=lambda: self.square())
+        if text in '0123456789.':
+            button = tk.Button(self.master, text=text, width=5, height=3, command=lambda: self.on_click(text))
             button.grid(row=row, column=col)
         else:
-            button = customtkinter.CTkButton(master=self, text=text,  width=50, height=25, command=lambda: self.on_click(text))
+            button = tk.Button(self.master, text=text, width=5, height=3, command=lambda: self.on_click(text), bg='orange')
             button.grid(row=row, column=col)
-    def square(self):
-        result = eval(self.display.get()) ** 2
 
-        self.display.delete(0, customtkinter.END)
-        self.display.insert(customtkinter.END, result)
+    def bind_keys(self):
+
+        self.master.bind('<Return>', lambda event: self.on_click('='))
+
+        for i in range(10):
+            self.master.bind(str(i), lambda event, i=str(i): self.on_click(i))
+
+        for op in ['+', '-', '*', '/', '.']:
+            self.master.bind(str(op), lambda event, i=str(op): self.on_click(i))
+
+
+
+    def create_sqrt_button(self,text, row, col):
+        button = tk.Button(self.master, text=text, width=5, height=3, command=lambda: self.sqrt(), bg='orange')
+        button.grid(row=row, column=col)
+
+    def create_square_button(self, text, row, col):
+        button = tk.Button(self.master, text=text, width=5, height=3, command=lambda: self.square(), bg='orange')
+        button.grid(row=row, column=col)
 
     def sqrt(self):
         result = math.sqrt(eval(self.display.get()))
-        self.display.delete(0, customtkinter.END)
-        self.display.insert(customtkinter.END, result)
+        self.display.delete(0, tk.END)
+        self.display.insert(tk.END, str(result))
 
+
+
+    def square(self):
+        result = eval(self.display.get())**2
+        self.display.delete(0, tk.END)
+        self.display.insert(tk.END, result)
+
+    def create_equals_button(self,text):
+        button = tk.Button(self.master, text=text, width=5, height=20, command=lambda: self.on_click(text), bg='orange')
+        button.grid(row=1, rowspan=5, column=4, columnspan=4, sticky=tk.N)
 
     def on_click(self, text):
         if text == "=":
             try:
-                result = eval(self.display.config())
-                self.display.delete(0, customtkinter.END)
-                self.display.insert(customtkinter.END, str(result))
+                result = eval(self.display.get())
+                self.display.delete(0, tk.END)
+                self.display.insert(tk.END, str(result))
             except ZeroDivisionError:
-                self.display.delete(0, customtkinter.END)
-                self.display.insert(customtkinter.END, "Error")
+                self.display.delete(0, tk.END)
+                self.display.insert(tk.END, "Error")
 
         elif text == "C":
-            self.display.delete(0, customtkinter.END)
+            self.display.delete(0, tk.END)
         else:
-            self.display.insert(customtkinter.END, text)
-
-    def bind_keys(self):
-
-        self.bind('<Return>', lambda event: self.on_click('='))
-
-        for i in range(10):
-            self.bind(str(i), lambda event, i=str(i): self.on_click(i))
-
-        for op in ['+', '-', '*', '/', '.']:
-            self.bind(str(op), lambda event, i=str(op): self.on_click(i))
+            self.display.insert(tk.END, text)
 
 
-
-if __name__ == "__main__":
-    app = Calculator()
-    app.mainloop()
-
+root = tk.Tk()
+master = Calculator(root)
+root.mainloop()
