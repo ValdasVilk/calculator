@@ -2,7 +2,7 @@ import customtkinter
 import math
 import pickle
 
-
+# Nustatome programėlės temą
 customtkinter.set_appearance_mode("dark")
 customtkinter.set_default_color_theme("blue")
 
@@ -13,20 +13,20 @@ class Calculator(customtkinter.CTk):
         super().__init__()
 
         self.title("Kalkaliatorius")
-        self.geometry("500x500")
-        self.resizable(True, True)
-
+        self.geometry("225x500")
+        self.resizable(False, False)
+        # cia bus ivedami skaiciai ir operatoriai
         self.display = customtkinter.CTkEntry(master=self, width=200, height=25)
         self.display.grid(row=0, column=0, columnspan=4)
-
+        # gaunamas rezultatas
         self.output_label = customtkinter.CTkLabel(master=self, text="result", width=120, height=25,
                                                    fg_color=("white", "gray75"),
                                                    corner_radius=8)
         self.output_label.grid(row=7, column=0, columnspan=5)
-
+        # atvaizduojama skaiciavimu istorija
         self.history = customtkinter.CTkTextbox(master=self, wrap=None)
         self.history.grid(row=8, column=0, columnspan=5)
-
+        # apsirašome mygtukus
         self.create_button("7", 2, 0)
         self.create_button("8", 2, 1)
         self.create_button("9", 2, 2)
@@ -54,17 +54,18 @@ class Calculator(customtkinter.CTk):
         self.create_button("x\u00b2", 1, 2)
 
         self.create_button("DEL", 6, 0)
-
+        # priskiariami klaviatūros mygtukai
         self.bind_keys()
-
+        # išvalyti istoriją
         self.clear_history_button = customtkinter.CTkButton(master=self, text="Clear History", width=120, height=25,
                                                             command=self.clear_history)
         self.clear_history_button.grid(row=9, column=0, columnspan=5)
 
+    # funkcija sukurti mygtukus pagal duotus duomenis
     def create_button(self, text, row, col):
 
         if text in '0123456789':
-            button = customtkinter.CTkButton(master=self, text=text,  width=50, height=25,
+            button = customtkinter.CTkButton(master=self, text=text, width=50, height=25,
                                              command=lambda: self.on_click(text))
             button.grid(row=row, column=col)
         elif text == "=":
@@ -80,10 +81,11 @@ class Calculator(customtkinter.CTk):
                                              command=lambda: self.square())
             button.grid(row=row, column=col)
         else:
-            button = customtkinter.CTkButton(master=self, text=text,  width=50, height=25,
+            button = customtkinter.CTkButton(master=self, text=text, width=50, height=25,
                                              command=lambda: self.on_click(text))
             button.grid(row=row, column=col)
 
+    # kėlimas kvadratu
     def square(self):
         result = eval(self.display.get()) ** 2
         self.save_entry(entry_text=str(result))
@@ -93,6 +95,7 @@ class Calculator(customtkinter.CTk):
         self.display.delete(0, customtkinter.END)
         self.output_label.configure(text=result)
 
+    # kvadratinė šaknis
     def sqrt(self):
         result = math.sqrt(eval(self.display.get()))
         self.save_entry(entry_text=str(result))
@@ -101,6 +104,7 @@ class Calculator(customtkinter.CTk):
         self.display.delete(0, customtkinter.END)
         self.output_label.configure(text=result)
 
+    # pridedame įvetą tekstą į istoriją
     def add_entry(self):
         entry_text = f"{self.display.get()} = "
         self.history.delete('1.0', 'end')
@@ -109,10 +113,12 @@ class Calculator(customtkinter.CTk):
 
         self.display.delete(0, customtkinter.END)
 
+    # išsaugome įvestą tekstą į pickle failą
     def save_entry(self, entry_text):
         with open('history.pickle', 'ab') as f:
             pickle.dump(entry_text, f)
 
+    # užkrauname istoriją
     def load_history(self):
         self.history.delete('1.0', 'end')
         try:
@@ -132,11 +138,13 @@ class Calculator(customtkinter.CTk):
         except FileNotFoundError:
             pass
 
+    # išvalome istoriją
     def clear_history(self):
         self.history.delete('1.0', 'end')
         with open('history.pickle', 'wb') as f:
             pass
 
+    # priskiriamos funkcijos mygtukams
     def on_click(self, text):
         if text == "=":
             try:
@@ -158,6 +166,7 @@ class Calculator(customtkinter.CTk):
         else:
             self.display.insert(customtkinter.END, text)
 
+    # klaviatūros mygtukai
     def bind_keys(self):
 
         self.bind('<Return>', lambda event: self.on_click('='))
@@ -169,6 +178,7 @@ class Calculator(customtkinter.CTk):
             self.bind(str(op), lambda event, i=str(op): self.on_click(i))
 
 
+# inicializuojame ir paleidžiame GUI aplikaciją
 if __name__ == "__main__":
     app = Calculator()
     app.mainloop()
