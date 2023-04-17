@@ -127,7 +127,7 @@ class Calculator(customtkinter.CTk):
                     try:
                         entry = pickle.load(f)
                         if isinstance(entry, str):
-                            if '=' in entry:  # check if entry has an equals sign
+                            if '=' in entry:  # patikriname ar yra '=' ženklas
                                 operation, result = entry.split('=')
                                 formatted_entry = f"{result.strip()} = {operation.strip()}"
                                 self.history.insert(customtkinter.END, f"{formatted_entry}\n")
